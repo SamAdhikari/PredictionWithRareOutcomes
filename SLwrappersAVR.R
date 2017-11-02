@@ -147,14 +147,16 @@ SLwrapperALL = function(X,Y,method,groupIndicators,
     
     ##Specify a library of algorithms##
     create.spgl = create.Learner("SL.sparseglasso",
-                                 tune = list(alpha=c(0,0.2,0.5,0.75,1)))
+                                 tune = list(alpha=c(0.5)))
     SL.library <- c("SL.glm","SL.mean",
-                    "SL.randomForest","SL.glmnet",
-                    "SL.logistf","SL.glasso",create.spgl$names)
+                    "SL.randomForest",
+                    "SL.glmnet",
+                    "SL.logistf",
+                   "SL.glasso",create.spgl$names)
     
     ##Run the super learner to obtain final predicted values for 
     ##the super learner as well as CV risk for algorithms in the library##
-    fit.data.SL<- CV.SuperLearner(Y=data[,6],X=data[,1:5],
+    fit.data.SL<- CV.SuperLearner(Y=Y,X=X,
                                   SL.library=SL.library, 
                                   family=binomial(),
                                   method= method,
