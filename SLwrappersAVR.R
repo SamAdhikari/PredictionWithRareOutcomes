@@ -57,6 +57,7 @@ function (base_learner, params = list(), tune = list(), env = parent.frame(),
 SL.glmnetT0 <- function(Y, X, newX, family, obsWeights, id,
                                      alpha = 1, nfolds = 10, nlambda = 100, useMin = TRUE,
                                      loss = "deviance",
+                                    standardize = FALSE,
                                      ...) 
     {
     require('glmnet')
@@ -67,12 +68,13 @@ SL.glmnetT0 <- function(Y, X, newX, family, obsWeights, id,
     p.factor = rep(1,dim(X)[2])
     p.factor[grep('Valve_G',dimnames(X)[[2]])] = 0 #no penalty on the valves
     # Use CV to find optimal lambda.
-    fitCV <- glmnet::cv.glmnet(x = X, y = Y, 
+    fitCV <- glmnet::cv.glmnet(x = X, y = Y, intercept=FALSE,
                                type.measure = loss,
                                nfolds = nfolds,
                                family = family$family,
                                nlambda = nlambda,
                                penalty.factor=p.factor,
+                               standardize = standardize,
                                ...)
     # If we predict with the cv.glmnet object we can specify lambda using a
     # string.
@@ -91,8 +93,6 @@ SL.glasso = function(Y, X, newX,
                          nfolds=10,
                         ...)
 {
-       # groupid = getGroupsFoldsAVR(TT,X,Y)$groupIndicators
-     #   groupid = 1:dim(X)[2]
         require(gglasso) #package to fit group lasso
         if(family$family == "gaussian") {
             stop("SL.glasso only available for family = binomial()")
@@ -133,61 +133,8 @@ predict.SL.glasso = function(object,newdata,...){
     }    
     
     
-# ######### sparse group lasso penalization
-# SL.sparseglasso = function(Y, X, newX, family,
-#                              #  grouping = groupIndicators,
-#                                alpha = 0.5,
-#                                standardize = FALSE,
-#                                 grouping = 1:dim(X)[2],
-#                                ...)
-#     {
-#         require(SGL) #package to fit sparse group lasso
-#      #   grouping = getGroupsFoldsAVR(TT,X,Y)$groupIndicators
-#         if (family$family == "gaussian") {
-#             stop("SL.sparseglasso only available for family = binomial()")
-#         }
-#         if(length(grouping)!= dim(X)[2]){
-#             stop("Number of covariates is different than the lenght of groupid")
-#         }
-#         if (!is.matrix(X)) {
-#             X <- model.matrix(~ -1 + ., X)
-#             newX <- model.matrix(~ -1 + ., newX)
-#         }
-#     
-#         dtf = list(x=X,y=Y)     
-#         fit.cv = cvSGL(data=dtf, index = grouping, type = "logit",
-#                        standardize = standardize, verbose = FALSE, 
-#                        alpha = alpha, lambdas = NULL)
-#                         
-#               # maxit = 1000, thresh = 0.001, min.frac = 0.05, nlam = 20, 
-#               # gamma = 0.8, nfold = 10, standardize = standardize, verbose = FALSE, 
-#               # step = 2, reset = 10, alpha = alpha, lambdas = NULL) 
-#         model.fit = SGL(data=dtf, index=grouping, type = "logit", 
-#                         standardize = standardize, 
-#                      alpha = alpha, lambdas = fit.cv$lambdas)    
-#         
-#         # maxit = 1000, thresh = 0.001, 
-#         #               min.frac = 0.1, nlam = 20, gamma = 0.8, standardize = standardize, 
-#         #               verbose = FALSE, step = 1, reset = 10, alpha = alpha, lambdas = fit.cv$lambdas)    
-# 
-#         pred = predictSGL(model.fit,newX,lam = which(fit.cv$lldiff==min(fit.cv$lldiff)))
-#         fit <- list(object = model.fit,lam =  which(fit.cv$lldiff==min(fit.cv$lldiff)) )
-#         out <- list(pred = pred, fit = fit)
-#         class(out$fit) <- 'SL.sparseglasso'
-#         return(out)
-#     }
-# 
-# predict.SL.sparseglasso =  function(object,newdata,lam,...){
-#     if (!is.matrix(newdata)) {
-#         newdata <- model.matrix(~ -1 + ., newdata)
-#     }
-#     pred = predictSGL(object,newdata,lam=lam)
-#     return(pred)
-# }
-# 
 
 SL.sparseglasso = function(Y, X, newX, family,
-                             #  grouping = groupIndicators,
                                alpha = 0.5,
                                standardize = FALSE,
                                 grouping = 1:dim(X)[2],
@@ -206,8 +153,8 @@ SL.sparseglasso = function(Y, X, newX, family,
             X <- model.matrix(~ -1 + ., X)
             newX <- model.matrix(~ -1 + ., newX)
         }
-        lambda.use = lambda(x=X, classes=Y,lambda.min=0.01,alpha = alpha,
-                            standardize = standardize)
+        lambda.use = lambda(x=X, classes=Y,lambda.min=0.001,alpha = alpha,
+                            standardize = standardize,d=50)
         fit.cv = msgl::cv(x=X, classes=Y,lambda= lambda.use,
                           sampleWeights = NULL,
                           grouping = grouping,
@@ -224,29 +171,11 @@ SL.sparseglasso = function(Y, X, newX, family,
                               alpha = alpha,
                               standardize = standardize)
         
-       
         #prediction in test data using default prediction in msgl
         predict.test = predict(model.fit,x=newX)
         loglikeDev = Err(fit.cv,type='loglike')
-        lambda.min = lambda.use[which(loglikeDev==min(loglikeDev))]
+        lambda.min = which(loglikeDev==min(loglikeDev))[1]
         pred = predict.test$response[[lambda.min]][2,]
-
-        # fit.CVspglasso =  msgl::cv(x=X, Y,
-        #                            sampleWeights = NULL,
-        #                            grouping = grouping,
-        #                            groupWeights = NULL,
-        #                            parameterWeights = NULL,
-        #                            alpha = alpha,
-        #                            standardize = standardize,
-        #                            lambda=lambda)
-        # lambda.min = lambda[best_model(fit.CVspglasso)]
-        # fit.msgl <- msgl::fit(x=X, classes=Y, alpha = alpha,
-        #                       grouping =grouping,
-        #                       lambda = lambda.min,d=1,
-        #                       standardize = FALSE)
-        # predict.test.msgl = cbind(1,newX)%*%fit.msgl$beta[[1]][2,]
-        # pred = sapply(1:length(predict.test.msgl),
-        #               function(x)1/(1+exp(-predict.test.msgl[x])))
         fit <- list(object = model.fit,lam=lambda.min)
         out <- list(pred = pred, fit = fit)
         class(out$fit) <- 'SL.sparseglasso'
@@ -260,7 +189,7 @@ predict.SL.sparseglasso =  function(object,newdata,lam,...){
 }
     
 ####### logistic regression with firth's adjustment for sparse outcome
-SL.logistf = function(Y, X, newX, ...)
+SL.logistf = function(Y, X, newX,  ...)
     {
         require(logistf)
         if (!is.matrix(X)) {
@@ -271,7 +200,6 @@ SL.logistf = function(Y, X, newX, ...)
         fit = logistf(as.formula(paste("Y~",
                         paste(dimnames(X)[[2]],collapse = '+'))),
                        data = dtf, pl = TRUE, 
-                       alpha = 0.05, 
                        firth = TRUE,  
                        plconf = NULL, dataout = TRUE)
         pred.vals = cbind(1,newX)%*%fit$coef 
@@ -292,7 +220,6 @@ predict.SL.logistf = function(object,newdata,...){
     return(pred)
 }
     
-
 ##Evalution metrics
 ##
 #Probability of Detection = sum true positive/sum condition positive observed
