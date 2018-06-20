@@ -202,6 +202,7 @@ SL.logistf = function(Y, X, newX,  ...)
                        data = dtf, pl = TRUE, 
                        firth = TRUE,  
                        plconf = NULL, dataout = TRUE)
+        
         pred.vals = cbind(1,newX)%*%fit$coef 
         pred = sapply(1:length(pred.vals),
                       function(x)1/(1+exp(-pred.vals[x])))
@@ -219,7 +220,38 @@ predict.SL.logistf = function(object,newdata,...){
                   function(x)1/(1+exp(-pred.vals[x])))
     return(pred)
 }
+  
+##bias reduction using package brglm
+SL.brglm = function(Y, X, newX, family=binomial(), ...)
+{
+    require(brglm2)
+    if (!is.matrix(X)) {
+        X <- model.matrix(~ -1 + ., X)
+        newX <- model.matrix(~ -1 + ., newX)
+    }
+ 
     
+   fit =  brglmFit(X,Y, family=family)
+   coefNA = which(is.na(fit$coefficients))
+   pred.vals = newX[,-coefNA]%*%fit$coefficients[-coefNA] 
+   pred = sapply(1:length(pred.vals),
+                 function(x)1/(1+exp(-pred.vals[x])))
+    out = list(pred=pred,fit=fit)
+    class(out$fit) = 'SL.brglm'
+    return(out)
+}
+
+predict.SL.brglm = function(object,newdata,...){
+    if (!is.matrix(newdata)) {
+        newdata <- model.matrix(~ -1 + ., newdata)
+    }
+    coefNA = which(is.na(fit$coefficients))
+    pred.vals = newX[,-coefNA]%*%fit$coefficients[-coefNA] 
+    pred = sapply(1:length(pred.vals),
+                  function(x)1/(1+exp(-pred.vals[x])))
+    return(pred)
+}
+  
 ##Evalution metrics
 ##
 #Probability of Detection = sum true positive/sum condition positive observed
