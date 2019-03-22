@@ -26,8 +26,8 @@ load('SimulatedData/SimulatedDataAVR_Within30Days.RData')
 #############
 #############
 
+Y = Y.sim
 
-Y = YTrue
 #specify prediction thresholds
 thresholds = seq(0.05, 0.8, length = 20)
 ##
@@ -344,80 +344,5 @@ rslt = data.frame('Method'=c('Logistic','LogistF','Lasso',
                              attributes(perf.superlearner)$y.values[1]))
 )
 
-
-
-
-pdf(file=paste('TPRbyThreshold',cohort,'.pdf',sep=''))
-par(mar=c(0,6,0,0))
-plot(thresholds,TPRlogistic,type='l',ylim=c(0,0.25),
-lwd=2.5,col='blue',cex.lab = 2, xlab = 'Threshold',
-ylab= 'TPR')
-lines(thresholds,TPRlasso,col='red',lwd=2.5)
-lines(thresholds,TPRlassoT0,col='pink',lwd=2.5)
-lines(thresholds,TPRglasso,col='green',lwd=2.5)
-lines(thresholds,TPRsglasso1,col='black',lwd=2.5)
-lines(thresholds,TPRsglasso2,col='black',lwd=2.5)
-lines(thresholds,TPRsglasso3,col='black',lwd=2.5)
-lines(thresholds,TPRlogistf,col='purple',lwd=2.5)
-lines(thresholds,TPRrf,col='orange',lwd=2.5)
-lines(thresholds,TPRSL, col='brown',lwd=2.5)
-legend('topright',legend=c('Logistic','Logist-Firth',
-'Lasso','LassoT0','Glasso','Sparse-Glasso',
-'RandomForest',
-'SuperLearner'),
-col=c('blue','purple','red','pink',
-'green','black','orange','brown'),
-lty=1,lwd=2.5,bty = 'n')
-dev.off()
-
-
-pdf(file=paste('FPRbyThreshold',cohort,'30Days.pdf',sep=''))
-plot(thresholds,FPRlogistic,type='l',ylim=c(0,0.15),
-ylab='FPR',lwd=2,col='blue')
-lines(thresholds,FPRlasso,col='red',lwd=2)
-lines(thresholds,FPRlassoT0,col='pink',lwd=2)
-lines(thresholds,FPRglasso,col='green',lwd=2)
-lines(thresholds,FPRsglasso1,col='black',lwd=2)
-lines(thresholds,FPRsglasso2,col='black',lwd=2)
-lines(thresholds,FPRsglasso3,col='black',lwd=2)
-lines(thresholds,TPRlogistf,col='purple',lwd=2)
-lines(thresholds,FPRrf,col='orange',lwd=2)
-lines(thresholds,FPRSL, col='brown',lwd=2)
-legend('topright',legend=c('Logistic','Logist-Firth','Lasso','LassoT0',
-'Glasso','Sparse-Glasso',
-'RandomForest',
-'SuperLearner'),
-col=c('blue','purple','red','pink','green','black','orange','brown'),lty=1)
-dev.off()
-
-
-pdf(file=paste('PPVbyThreshold',cohort,'30Days.pdf',sep=''))
-plot(thresholds,PPVlogistic,type='l',ylim=c(0,1),
-ylab='PPV',lwd=2,col='blue')
-lines(thresholds,PPVlasso,col='red',lwd=2)
-lines(thresholds,PPVlassoT0,col='pink',lwd=2)
-lines(thresholds,PPVglasso,col='green',lwd=2)
-lines(thresholds,PPVsglasso1,col='black',lwd=2)
-lines(thresholds,PPVsglasso2,col='black',lwd=2)
-lines(thresholds,PPVsglasso3,col='black',lwd=2)
-lines(thresholds,TPRlogistf,col='purple',lwd=2)
-lines(thresholds,PPVrf,col='orange',lwd=2)
-lines(thresholds,PPVSL, col='brown',lwd=2)
-dev.off()
-
-pdf(file=paste('Accuracy',cohort,'30Days.pdf',sep=''))
-plot(thresholds,1-MCerrlogistic,type='l',ylim=c(0.975,0.983),
-ylab='Accuracy',lwd=2,col='blue')
-lines(thresholds,1-MCerrlasso,col='red',lwd=2)
-lines(thresholds,1-MCerrlassoT0,col='pink',lwd=2)
-lines(thresholds,1-MCerrglasso,col='green',lwd=2)
-lines(thresholds,TPRlogistf,col='purple',lwd=2)
-lines(thresholds,1-MCerrRF,col='orange',lwd=2)
-lines(thresholds,1-MCerrSL, col='brown',lwd=2)
-lines(thresholds,1-MCerrsglasso1,lwd=2)
-lines(thresholds,1-MCerrsglasso2,lwd=2)
-lines(thresholds,1-MCerrsglasso3,lwd=2)
-abline(h=1-MCerrNaive,lty=3,lwd=2)
-dev.off()
 
 
