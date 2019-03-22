@@ -2,8 +2,7 @@
 ##          fitted superlearner object and simulated dataset
 #output:
 ##          a dataframe 'rslt' with performance metrics
-##          threshold plots saved as pdf files
-
+##          
 
 #load required libraries
 library(glmnet)
