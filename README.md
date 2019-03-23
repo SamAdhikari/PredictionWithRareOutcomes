@@ -1,7 +1,7 @@
 ## Revisiting performance metrics for prediction with rare outcomes
 ### 
 
-Supplemental material for the paper, "Revisiting performance metrics for prediction with rare outcomes" by Samrachana Adhikari, Sharon-Lise Normand, and Sherri Rose.
+Supplemental material for the paper, "Revisiting performance metrics for prediction with rare outcomes" by Samrachana Adhikari, Sharon-Lise Normand, Jordan Bloom, David Shahian, and Sherri Rose.
 
 Organization of the repository is as follows:
 
