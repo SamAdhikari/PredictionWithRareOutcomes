@@ -1,7 +1,7 @@
 ## Revisiting Performance Metrics for Prediction with Rare Outcomes
 ### 
 
-Simulated data and code for the paper "Revisiting Performance Metrics for Prediction with Rare Outcomes" by Samrachana Adhikari, Sharon-Lise Normand, Jordan Bloom, David Shahian, and Sherri Rose.
+Code and simulated data for the paper "Revisiting Performance Metrics for Prediction with Rare Outcomes" by Samrachana Adhikari, Sharon-Lise Normand, Jordan Bloom, David Shahian, and Sherri Rose.
 
 Organization of the repository is as follows:
 
