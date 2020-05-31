@@ -1,4 +1,5 @@
 ### Code to fit Super Learner ensemble for simulation setting 2, AVR 30 Day mortality outcome
+##make sure the working directory is '/PredictionWithRareOutcomes'
 options(java.parameters = "-Xmx10g")
 
 cohort = 'AVR_30Days_Interact'
@@ -20,12 +21,13 @@ library(nnet)
 source('SLwrappersAVR.R')
 source('getGroupsFoldspartial.R')
 
-#load simulated dataset
+#load simulated dataset included in subfolder 'SimulatedData' in this GitHub repository
 load('SimulatedDataAVR_InteractWithin30Days.RData')
 
 ##prepare data for model fitting
 Y = Y.sim
 
+## create group indicators for group lasso and sparse group lasso algorithms
 groupFolds = getGroupsFoldspartial(TT,X.sim,Y)
 groupIndicators = groupFolds$groupIndicators
 X = X.sim[,groupFolds$varNames]
@@ -75,7 +77,7 @@ fit.data.SL<- CV.SuperLearner(Y=Y,X=X,
                       innerCvControl = list(list(V = 10, stratifyCV = TRUE)),
                       verbose=TRUE)
 
-
+#save fitted model as a .RData file
 save(fit.data.SL,file=paste('AUC_FittedModel_Simulation',cohort,'.RData',sep=''))
 
 

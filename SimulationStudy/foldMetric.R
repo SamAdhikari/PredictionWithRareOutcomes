@@ -1,3 +1,14 @@
+##  foldMetric: function to compute evaluation metrics over a range of probability thresholds for each cross validation (CV) fold
+
+##Input: fold := relevant CV fold in numeric, Y.sim := simulated data,
+## fit.data.SL := fitted model, thresholds := vector of probability thresholds
+
+#Output: rslt := dataframe with metrics at optimized threshold,
+#MCerrlist := List of misclassification error for individual algorithm over the range of thresholds
+#TPRlist := List of true positive rate for individual algorithm over the range of thresholds
+#PPVlist := List of positive predictive value for individual algorithm over the range of thresholds
+#FPRlist := List of false positive rate for individual algorithm over the range of thresholds
+
 
 foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length=20))
 {
@@ -5,20 +16,22 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   folds_id = fit.data.SL$folds[[fold]]
   Y = Y.sim[folds_id]
   #for simulation study
-  pr.naive = fit.data.SL$library.predict[folds_id,1]
-  pr.logistic = fit.data.SL$library.predict[folds_id,2]
-  pr.randomforest = fit.data.SL$library.predict[folds_id,3]
-  pr.lasso = fit.data.SL$library.predict[folds_id,4]
-  pr.lassoT0 = fit.data.SL$library.predict[folds_id,5]
-  pr.logistf = fit.data.SL$library.predict[folds_id,6]
-  pr.glasso = fit.data.SL$library.predict[folds_id,7]
-  pr.sglasso1 = fit.data.SL$library.predict[folds_id,8]
-  pr.xgboost = fit.data.SL$library.predict[folds_id,9]
-  pr.nnet1 = fit.data.SL$library.predict[folds_id,10]
-  pr.nnet2 = fit.data.SL$library.predict[folds_id,11]
-  pr.nnet3 = fit.data.SL$library.predict[folds_id,12]
-  pr.ksvm = fit.data.SL$library.predict[folds_id,13]
-  pr.bartMachine = fit.data.SL$library.predict[folds_id,14]
+  pr.naive = fit.data.SL$library.predict[folds_id, 1]
+  pr.logistic = fit.data.SL$library.predict[folds_id, 2]
+  pr.randomforest = fit.data.SL$library.predict[folds_id, 3]
+  pr.lasso = fit.data.SL$library.predict[folds_id, 4]
+  pr.lassoT0 = fit.data.SL$library.predict[folds_id, 5]
+  pr.logistf = fit.data.SL$library.predict[folds_id, 6]
+  pr.glasso = fit.data.SL$library.predict[folds_id, 7]
+  pr.sglasso1 = fit.data.SL$library.predict[folds_id, 8]
+  pr.sglasso2 = fit.data.SL$library.predict[folds_id, 9]
+  pr.sglasso3 = fit.data.SL$library.predict[folds_id, 10]
+  pr.xgboost = fit.data.SL$library.predict[folds_id, 11]
+  pr.nnet1 = fit.data.SL$library.predict[folds_id, 12]
+  pr.nnet2 = fit.data.SL$library.predict[folds_id, 13]
+  pr.nnet3 = fit.data.SL$library.predict[folds_id, 14]
+  pr.ksvm = fit.data.SL$library.predict[folds_id, 15]
+  pr.bartMachine = fit.data.SL$library.predict[folds_id, 16]
   pr.SL = fit.data.SL$SL.predict[folds_id]
   
   ##report True positive, False negative, misclassification error and AUC score

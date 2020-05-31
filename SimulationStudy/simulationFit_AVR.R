@@ -1,5 +1,6 @@
 
 ### Code to fit Super Learner ensemble for simulation setting 1, AVR 30 Day mortality outcome
+##make sure the working directory is '/PredictionWithRareOutcomes'
 
 options(java.parameters = "-Xmx10g")
 cohort = 'AVR_30Days'
@@ -17,16 +18,17 @@ library(bartMachine)
 library(xgboost)
 library(nnet)
 
-#source internal functions
+#source internal r scripts
 source('SLwrappersAVR.R')
 source('getGroupsFoldspartial.R')
 
-#load simulated dataset
+#load simulated dataset included in subfolder 'SimulatedData' in this GitHub repository
 load('SimulatedDataAVRWithin30Days.RData')
 
 #prepare data for model fitting
 Y = Y.sim
 
+## create group indicators for group lasso and sparse group lasso algorithms
 groupFolds = getGroupsFoldspartial(TT,X.sim,Y)
 groupIndicators = groupFolds$groupIndicators
 X = X.sim[,groupFolds$varNames]
@@ -57,18 +59,20 @@ SL.nnet4 = function(...){
 create.spgl = create.Learner("SL.sparseglassoAVR",
             tune = list(alpha=c(0.15,0.5,0.85)))
 
- SL.library <- c("SL.mean","SL.glm",
+ SL.library <- c("SL.mean",
+                "SL.glm",
                 "SL.randomForest",
-                "SL.glmnetNoStandardize","SL.glmnetT0",
-                "SL.logistf","SL.glassoAVR",
+                "SL.glmnetNoStandardize",
+                "SL.glmnetT0",
+                "SL.logistf",
+                "SL.glassoAVR",
                 create.spgl$names,
-                "SL.xgboost", "SL.nnet", "SL.nnet3",
+                "SL.xgboost",
+                "SL.nnet",
+                "SL.nnet3",
                 "SL.nnet4",
-                "SL.ksvm", "SL.bartMachine")
-
-
-
-
+                "SL.ksvm",
+                "SL.bartMachine")
 
 fit.data.SL<- CV.SuperLearner(Y=Y,X=X,
                               SL.library= SL.library,
@@ -78,9 +82,7 @@ fit.data.SL<- CV.SuperLearner(Y=Y,X=X,
                               innerCvControl = list(list(V = 10, stratifyCV = TRUE)),
                             verbose=TRUE)
 
-
-
-
+#save fitted model as a .RData file
 save(fit.data.SL, file=paste('AUC_FittedModel_Simulation',cohort,'.RData',sep=''))
 
 
