@@ -1,6 +1,10 @@
+### Code to fit Super Learner ensemble for simulation setting 3, AVR 30 Day mortality outcome
+
+cohort = 'AVR_Ommitted_30Days'
+
 options(java.parameters = "-Xmx10g")
-#load('PartialMEf_SimulatedDataAVR_Ommitted_1Yr.RData')
-load('PartialMEf_SimulatedDataAVR_OmmittedWithin30Days.RData')
+
+#load R libraries
 library(gglasso)
 library(glmnet)
 library(msgl)
@@ -10,26 +14,30 @@ library(SuperLearner)
 library(logistf)
 library(kernlab)
 library(bartMachine)
-#library(dbarts)
 library(xgboost)
 library(nnet)
 
+#source internal functions
 source('SLwrappersAVR.R')
-#source('getGroupsFoldsAVR.R')
 source('getGroupsFoldspartial.R')
 
+#load simulated dataset
+load('PartialMEf_SimulatedDataAVR_OmmittedWithin30Days.RData')
+
+##prepare data for model fitting
 cov.new = dimnames(X.sim)[[2]][-subID]
 
 Y = Y.sim
 X = X.sim[,cov.new]
-cohort = 'AVR_Ommitted_30Days'
 
 groupFolds = getGroupsFoldspartial(TT=0,X,Y)
+
 groupIndicators = groupFolds$groupIndicators
+
 X = X[,groupFolds$varNames]
 
-##Specify a library of algorithms##
-#groupIndicators = 1:dim(X)[2]
+##Specify a library of algorithms to include in the ensemble
+##
 SL.glassoAVR = function(...){
     SL.glasso(...,groupid = groupIndicators)
 }
@@ -51,7 +59,7 @@ SL.nnet4 = function(...){
 }
 
 create.spgl = create.Learner("SL.sparseglassoAVR",
-tune = list(alpha=c(0.15))) #,0.5,0.85)))
+            tune = list(alpha=c(0.15,0.5,0.85)))
 
 
 SL.library <- c("SL.mean","SL.glm",
@@ -63,9 +71,6 @@ SL.library <- c("SL.mean","SL.glm",
                "SL.nnet4",
                "SL.ksvm", "SL.bartMachine")
 
-#options(mc.cores = 3)
-#Check how many parallel workers we are using (on macOS/Linux).
-#getOption("mc.cores")
 
 fit.data.SL<- CV.SuperLearner(Y=Y,X=X,
                  SL.library= SL.library,
