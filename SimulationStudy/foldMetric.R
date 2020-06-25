@@ -230,7 +230,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   
   FPRlist = list(FPRnaive, FPRlogistic, FPRlasso, FPRlassoT0, FPRlogistf, 
                  FPRrf, FPRglasso, FPRsglasso1, FPRxgboost,FPRnnet1, FPRnnet2, 
-                 FPRnnet3, FPRksvm, FPRbartMachine )
+                 FPRnnet3, FPRksvm, FPRbartMachine, FPRSL )
   
   ##Positive predictive value PPV
   PPVnaive = sapply(1:length(thresholds),function(x)
@@ -288,7 +288,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   
   PPVlist = list(PPVnaive, PPVlogistic, PPVlasso, PPVglasso, PPVlassoT0, PPVlogistf,
                  PPVrf, PPVsglasso1, PPVxgboost, PPVnnet1, PPVnnet2, PPVnnet3, PPVksvm, 
-                 PPVbartMachine)
+                 PPVbartMachine, PPVSL)
   
   ##AUC
   ###ROC performance
@@ -361,7 +361,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   perf.superlearner = performance(pred.superlearner,measure='auc')
   
   
-  # 
+  # select threshold that maximizes accuracy or 1 - misclassification error
   lasso_id = which((1-MCerrlasso)==max((1-MCerrlasso)))[1]
   lassoT0_id = which((1-MCerrlassoT0)==max((1-MCerrlassoT0)))[1]
   logit_id = which((1-MCerrlogistic)==max((1-MCerrlogistic)))[1]
@@ -375,7 +375,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   ksvm_id =which((1-MCerrksvm)==max((1-MCerrksvm)))[1]
   bartMachine_id =which((1-MCerrbartMachine)==max((1-MCerrbartMachine)))[1]
   
-  ##sensitivity = TPR
+  ##sensitivity = TPR at the selected threshold
   TPR_lasso = TPRlasso[lasso_id]
   TPR_logistic = TPRlogistic[logit_id]
   TPR_glasso = TPRglasso[glasso_id]
@@ -390,7 +390,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   TPR_bartMachine = TPRbartMachine[bartMachine_id]
   
   
-  ##specificity = 1- FPR
+  ##specificity = 1- FPR at the selected threshold
   FPR_lasso = FPRlasso[lasso_id]
   FPR_logistic = FPRlogistic[logit_id]
   FPR_glasso = FPRglasso[glasso_id]
@@ -404,7 +404,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   FPR_ksvm = FPRksvm[ksvm_id]
   FPR_bartMachine = FPRbartMachine[bartMachine_id]
   
-  #positive prediction value
+  #positive prediction value at the selected threshold
   PPV_lasso = PPVlasso[lasso_id]
   PPV_logistic = PPVlogistic[logit_id]
   PPV_glasso = PPVglasso[glasso_id]
@@ -418,7 +418,7 @@ foldMetric = function(fold, Y.sim, fit.data.SL, thresholds = seq(0.05,0.8,length
   PPV_ksvm = PPVksvm[ksvm_id]
   PPV_bartMachine = PPVbartMachine[bartMachine_id]
   
-  ##accuracy
+  ##accuracy at the selected threshold
   accuracy_lasso = 1-MCerrlasso[lasso_id]
   accuracy_logistic = 1-MCerrlogistic[logit_id]
   accuracy_glasso = 1-MCerrglasso[glasso_id]

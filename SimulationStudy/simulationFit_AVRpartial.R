@@ -24,7 +24,8 @@ source('getGroupsFoldspartial.R')
 #load simulated dataset included in subfolder 'SimulatedData' in this GitHub repository
 load('PartialMEf_SimulatedDataAVR_OmmittedWithin30Days.RData')
 
-##prepare data for model fitting
+##prepare data for model fitting by ommitting partial set of variables
+
 cov.new = dimnames(X.sim)[[2]][-subID]
 
 Y = Y.sim

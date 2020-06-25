@@ -13,7 +13,7 @@ source('foldmetric.R')
 
 ###########
 ###########
-##adjust the following lines of codes depending the types of analysis
+##adjust the following lines of codes depending the type of analysis
 
 ##as an example we present the code to summarize fits for AVR_Within30Days.
 ##specify name of the cohort
